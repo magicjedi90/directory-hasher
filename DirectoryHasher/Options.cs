@@ -1,6 +1,6 @@
 namespace DirectoryHasher;
 
-public class Options
-{
-    
-}
+public sealed record Options(
+    string RootPath,
+    string OutputPath,
+    int MaxDegreeOfParallelism);

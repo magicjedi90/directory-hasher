@@ -1,6 +1,6 @@
-namespace DefaultNamespace;
+namespace DirectoryHasher.Models;
 
-public class Results
-{
-    
-}
+public sealed record Results(
+    string FilePath,
+    string Sha256,
+    long   Bytes);
