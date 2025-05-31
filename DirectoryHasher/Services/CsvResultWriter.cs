@@ -33,6 +33,11 @@ public sealed class CsvResultWriter(Options opts) : IResultWriter
             await writer.WriteLineAsync(line);
     }
 
-    private static string Escape(string path) =>
-        path.Contains(',') ? $"\"{path.Replace("\"", "\"\"")}\"" : path;
+    private static string Escape(string path)
+    {
+        var needsQuotes = path.Contains(',') || path.Contains('"');
+        var escaped = path.Replace("\"", "\"\"");
+        return needsQuotes ? $"\"{escaped}\"" : path;
+    }
+
 }

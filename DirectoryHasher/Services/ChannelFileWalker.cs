@@ -17,22 +17,25 @@ public sealed class ChannelFileWalker : IFileWalker
                 FullMode     = BoundedChannelFullMode.Wait
             });
 
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                foreach (var file in Directory.EnumerateFiles(
-                             rootPath, "*", SearchOption.AllDirectories))
-                {
-                    await channel.Writer.WriteAsync(file, cancellationToken);
-                }
-            }
-            finally
-            {
-                channel.Writer.TryComplete();
-            }
-        }, cancellationToken);
+        _ = Task.Run(() => WriteFilesToChannelAsync(rootPath, channel, cancellationToken), cancellationToken);
 
         return channel.Reader.ReadAllAsync(cancellationToken);
+    }
+
+    private static async Task WriteFilesToChannelAsync(string rootPath,
+        Channel<string> channel, CancellationToken cancellationToken)
+    {
+        try
+        {
+            foreach (var file in Directory.EnumerateFiles(
+                         rootPath, "*", SearchOption.AllDirectories))
+            {
+                await channel.Writer.WriteAsync(file, cancellationToken);
+            }
+        }
+        finally
+        {
+            channel.Writer.TryComplete();
+        }
     }
 }

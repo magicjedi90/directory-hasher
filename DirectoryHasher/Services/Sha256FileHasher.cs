@@ -9,12 +9,12 @@ public sealed class Sha256FileHasher : IFileHasher
         string filePath,
         CancellationToken cancellationToken)
     {
-        await using var fs = File.OpenRead(filePath);
+        await using var fileStream = File.OpenRead(filePath);
         using var sha = SHA256.Create();
 
-        var hash = await sha.ComputeHashAsync(fs, cancellationToken);
+        var hash = await sha.ComputeHashAsync(fileStream, cancellationToken);
         var hex  = ConvertToHex(hash);
-        return (hex, fs.Length);
+        return (hex, fileStream.Length);
     }
 
     private static string ConvertToHex(byte[] bytes)
