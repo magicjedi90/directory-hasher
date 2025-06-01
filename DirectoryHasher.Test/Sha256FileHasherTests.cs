@@ -73,7 +73,7 @@ public class Sha256FileHasherTests : IDisposable
         await cts.CancelAsync();
 
         // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+        await Assert.ThrowsAsync<TaskCanceledException>(() =>
             _hasher.ComputeAsync(_testFilePath, cts.Token));
     }
 

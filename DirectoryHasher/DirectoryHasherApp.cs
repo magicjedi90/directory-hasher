@@ -20,7 +20,7 @@ public sealed class DirectoryHasherApp(
     {
         await writer.InitialiseAsync(cancellationToken);
 
-        var resultsCh = Channel.CreateUnbounded<Results>();
+        var resultsChannel = Channel.CreateUnbounded<Results>();
 
         // Producer – enumerates paths
         var producer = Task.Run(async () =>
@@ -28,18 +28,18 @@ public sealed class DirectoryHasherApp(
             await foreach (var path in walker.EnumerateFilesAsync(opts.RootPath, cancellationToken))
             {
                 var (hash, bytes) = await hasher.ComputeAsync(path, cancellationToken);
-                await resultsCh.Writer.WriteAsync(
+                await resultsChannel.Writer.WriteAsync(
                     new Results(path, hash, bytes), cancellationToken);
 
                 progress.Report(1);
             }
-            resultsCh.Writer.TryComplete();
+            resultsChannel.Writer.TryComplete();
         }, cancellationToken);
 
         // Consumer – writes results
         var consumer = Task.Run(async () =>
         {
-            await foreach (var result in resultsCh.Reader.ReadAllAsync(cancellationToken))
+            await foreach (var result in resultsChannel.Reader.ReadAllAsync(cancellationToken))
             {
                 await writer.WriteAsync(result, cancellationToken);
             }
